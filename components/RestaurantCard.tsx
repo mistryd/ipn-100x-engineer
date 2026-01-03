@@ -36,6 +36,29 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
     }
   };
 
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
+
+  const isOpenNow = () => {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+    const [openHour, openMinute] = restaurant.openingHours.split(':').map(Number);
+    const openTimeInMinutes = openHour * 60 + openMinute;
+
+    const [closeHour, closeMinute] = restaurant.closingHours.split(':').map(Number);
+    const closeTimeInMinutes = closeHour * 60 + closeMinute;
+
+    return currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
       {/* Placeholder image area */}
@@ -64,10 +87,18 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
           📍 {restaurant.address}
         </p>
 
-        {/* TODO: Workshop Exercise 1 - Add opening hours display */}
-        {/* The data includes openingHours and closingHours fields */}
-        {/* Display them here with appropriate formatting */}
-        {/* Consider showing "Open Now" or "Closed" status */}
+        <div className="flex items-center gap-2 mb-2">
+          <p className="text-sm text-gray-600">
+            🕐 {formatTime(restaurant.openingHours)} - {formatTime(restaurant.closingHours)}
+          </p>
+          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+            isOpenNow()
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
+          }`}>
+            {isOpenNow() ? 'Open Now' : 'Closed'}
+          </span>
+        </div>
 
         <p className="text-sm text-gray-500 line-clamp-2">{restaurant.description}</p>
 
